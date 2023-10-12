@@ -4,7 +4,7 @@ import PageWrapper from '../PageWrapper/PageWrapper';
 import Page from '../Page/Page';
 import SubHeader from '../SubHeader/SubHeader';
 
-const LOADING = (
+export const LOADING = (
 	<PageWrapper>
 		<SubHeader>
 			<div />

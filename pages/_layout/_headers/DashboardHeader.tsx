@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 // import Image from 'next/image';
@@ -16,13 +16,13 @@ import LANG, { getLangWithKey, ILang } from '../../../lang';
 import Spinner from '../../../components/bootstrap/Spinner';
 import showNotification from '../../../components/extras/showNotification';
 import Avatar from '../../../components/Avatar';
-import UserApi from '../../../common/services/user.service';
+import AuthContext from '../../../context/authContext';
+import { Logout } from '../../../components/icon/material-icons';
 
 const DashboardHeader = () => {
 	const defaultAvt =
 		'https://play-lh.googleusercontent.com/xlnwmXFvzc9Avfl1ppJVURc7f3WynHvlA749D1lPjT-_bxycZIj3mODkNV_GfIKOYJmG';
-	const [avatarUrl, setAvatarUrl] = useState<string>(defaultAvt);
-	const [userName, setUserName] = useState<string>('');
+	const { userData, logout } = useContext(AuthContext);
 
 	const router = useRouter();
 	const { darkModeStatus, setDarkModeStatus } = useDarkMode();
@@ -46,32 +46,6 @@ const DashboardHeader = () => {
 			</span>,
 			'You updated the language of the site. (Only "Aside" was prepared as an example.)',
 		);
-	};
-
-	const fetchDataUser = useCallback(async () => {
-		try {
-			const response = await UserApi.getProfile();
-			console.log(response);
-			setAvatarUrl(response.data?.payload?.picture ?? defaultAvt);
-			setUserName(response.data?.payload?.firstName ?? '');
-		} catch (error: any) {
-			console.log(error.message);
-			// handleOnError();
-			router.push('/auth-pages/login');
-		}
-	}, [router]);
-
-	useEffect(() => {
-		fetchDataUser();
-	}, [fetchDataUser]);
-
-	const handleOnLogout = async () => {
-		try {
-			await UserApi.logout();
-			router.push('/auth-pages/login');
-		} catch (error) {
-			console.log(error);
-		}
 	};
 
 	return (
@@ -157,16 +131,23 @@ const DashboardHeader = () => {
 									<div className='col d-flex align-items-center cursor-pointer'>
 										<div className='me-3'>
 											<div className='text-end'>
-												<div className='fw-bold fs-6 mb-0'>{userName}</div>
+												<div className='fw-bold fs-6 mb-0'>
+													{userData?.firstName ?? 'NULL'}
+												</div>
 											</div>
 										</div>
-										<Avatar src={avatarUrl} size={36} color='primary' />
+										<Avatar
+											src={userData?.picture ?? defaultAvt}
+											size={36}
+											color='primary'
+										/>
 									</div>
 								</Button>
 							</DropdownToggle>
 							<DropdownMenu isAlignmentEnd data-tour='lang-selector-menu'>
 								<DropdownItem key='logout button'>
-									<Button onClick={handleOnLogout}>
+									<Button onClick={logout}>
+										<Logout />
 										<span>Logout</span>
 									</Button>
 								</DropdownItem>

@@ -1,32 +1,27 @@
 import React, { useContext, useState } from 'react';
-import { useTranslation } from 'next-i18next';
+// import { useTranslation } from 'next-i18next';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
-import { useWindowSize } from 'react-use';
-import { demoPagesMenu } from '../../menu';
-import useDarkMode from '../../hooks/useDarkMode';
-import Collapse from '../../components/bootstrap/Collapse';
-import { NavigationLine } from '../Navigation/Navigation';
-import Icon from '../../components/icon/Icon';
-import useNavigationItemHandle from '../../hooks/useNavigationItemHandle';
+// import { useRouter } from 'next/router';
+// import useDarkMode from '../../hooks/useDarkMode';
+// import Collapse from '../../components/bootstrap/Collapse';
+// import { NavigationLine } from '../Navigation/Navigation';
+// import Icon from '../../components/icon/Icon';
+// import useNavigationItemHandle from '../../hooks/useNavigationItemHandle';
 import AuthContext from '../../context/authContext';
 
-import ThemeContext from '../../context/themeContext';
 import Popovers from '../../components/bootstrap/Popovers';
 
 const User = () => {
-	const { width } = useWindowSize();
-	const { setAsideStatus } = useContext(ThemeContext);
-	const { userData, setUser } = useContext(AuthContext);
+	const { userData } = useContext(AuthContext);
 
-	const router = useRouter();
+	// const router = useRouter();
 
-	const handleItem = useNavigationItemHandle();
-	const { darkModeStatus, setDarkModeStatus } = useDarkMode();
+	// const handleItem = useNavigationItemHandle();
+	// const { darkModeStatus, setDarkModeStatus } = useDarkMode();
 
 	const [collapseStatus, setCollapseStatus] = useState<boolean>(false);
 
-	const { t } = useTranslation(['translation', 'menu']);
+	// const { t } = useTranslation(['translation', 'menu']);
 
 	return (
 		<>
@@ -35,28 +30,21 @@ const User = () => {
 				role='presentation'
 				onClick={() => setCollapseStatus(!collapseStatus)}>
 				<div className='user-avatar'>
-					{!!userData?.src && (
+					{!!userData?.picture && (
 						// eslint-disable-next-line @next/next/no-img-element
-						<img src={userData?.src} alt='Avatar' width={128} height={128} />
+						<img src={userData?.picture} alt='Avatar' width={128} height={128} />
 					)}
 				</div>
 				<div className='user-info'>
 					<div className='user-name'>
 						<Popovers title='User.tsx' desc={<code>layout/User/User.tsx</code>}>
-							{`${userData?.name} ${userData?.surname}`}
+							{`${userData?.firstName} ${userData?.lastName ?? ''}`}
 						</Popovers>
-						<code className='ps-2'>User.tsx</code>
-					</div>
-					<div className='user-sub-title'>
-						<Popovers title='User.tsx' desc={<code>layout/User/User.tsx</code>}>
-							User
-						</Popovers>
-						<code className='ps-2'>User.tsx</code>
 					</div>
 				</div>
 			</div>
 
-			<Collapse isOpen={collapseStatus} className='user-menu'>
+			{/* <Collapse isOpen={collapseStatus} className='user-menu'>
 				<nav aria-label='aside-bottom-user-menu'>
 					<div className='navigation'>
 						<div
@@ -101,18 +89,7 @@ const User = () => {
 				<NavigationLine />
 				<nav aria-label='aside-bottom-user-menu-2'>
 					<div className='navigation'>
-						<div
-							role='presentation'
-							className='navigation-item cursor-pointer'
-							onClick={() => {
-								if (setUser) {
-									setUser('');
-								}
-								if (width < Number(process.env.REACT_APP_MOBILE_BREAKPOINT_SIZE)) {
-									setAsideStatus(false);
-								}
-								router.push(`/${demoPagesMenu.login.path}`);
-							}}>
+						<div role='presentation' className='navigation-item cursor-pointer'>
 							<span className='navigation-link navigation-link-pill'>
 								<span className='navigation-link-info'>
 									<Icon icon='Logout' className='navigation-icon' />
@@ -122,7 +99,7 @@ const User = () => {
 						</div>
 					</div>
 				</nav>
-			</Collapse>
+			</Collapse> */}
 		</>
 	);
 };

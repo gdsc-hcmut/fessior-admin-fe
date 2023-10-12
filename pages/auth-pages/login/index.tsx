@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback, useContext, useState } from 'react';
 import type { NextPage } from 'next';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
@@ -14,6 +14,7 @@ import Page from '../../../layout/Page/Page';
 import Card, { CardBody } from '../../../components/bootstrap/Card';
 import Logo from '../../../components/Logo';
 import UserApi from '../../../common/services/user.service';
+import AuthContext from '../../../context/authContext';
 
 interface ILoginHeaderProps {
 	isNewUser?: boolean;
@@ -41,7 +42,7 @@ interface ILoginProps {
 const Login: NextPage<ILoginProps> = ({ isSignUp }) => {
 	const router = useRouter();
 
-	// const { setUser } = useContext(AuthContext);
+	const { getUserProfile } = useContext(AuthContext);
 
 	const { darkModeStatus } = useDarkMode();
 
@@ -93,9 +94,11 @@ const Login: NextPage<ILoginProps> = ({ isSignUp }) => {
 													'token',
 													JSON.stringify(data.payload),
 												);
+												getUserProfile();
 												handleOnRedirect();
 											}}
 											onError={() => {
+												localStorage.removeItem('token');
 												console.log('Login Failed');
 											}}
 										/>
