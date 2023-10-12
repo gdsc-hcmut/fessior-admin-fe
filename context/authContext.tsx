@@ -1,11 +1,23 @@
-import React, { createContext, FC, ReactNode, useEffect, useMemo, useState } from 'react';
+import React, {
+	createContext,
+	FC,
+	ReactNode,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import PropTypes from 'prop-types';
-import { getUserDataWithUsername, IUserProps } from '../common/data/userDummyData';
+import { useRouter } from 'next/router';
+import { IUserProps } from '../common/data/userDummyData';
+import UserApi from '../common/services/user.service';
 
 export interface IAuthContextProps {
-	user: string;
-	setUser?(...args: unknown[]): unknown;
+	isAuthenticated: boolean;
+	setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 	userData: Partial<IUserProps>;
+	getUserProfile: () => void;
+	logout: () => void;
 }
 const AuthContext = createContext<IAuthContextProps>({} as IAuthContextProps);
 
@@ -14,30 +26,50 @@ interface IAuthContextProviderProps {
 }
 export const AuthContextProvider: FC<IAuthContextProviderProps> = ({ children }) => {
 	// @ts-ignore
-	const [user, setUser] = useState<string>(
-		typeof window !== 'undefined' ? String(localStorage?.getItem('facit_authUsername')) : '',
-	);
+	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 	const [userData, setUserData] = useState<Partial<IUserProps>>({});
+	const router = useRouter();
+
+	const getUserProfile = useCallback(() => {
+		UserApi.getProfile()
+			.then((res) => {
+				setUserData(res.data?.payload || {});
+				setIsAuthenticated(true);
+			})
+			.catch(() => {
+				setIsAuthenticated(false);
+				localStorage.clear();
+				router.push('/auth-pages/login');
+			});
+	}, [router]);
+
+	const logout = useCallback(() => {
+		UserApi.logout()
+			.then(() => {
+				setUserData({});
+				setIsAuthenticated(false);
+				localStorage.clear();
+				router.push('/auth-pages/login');
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	}, [router]);
 
 	useEffect(() => {
-		localStorage.setItem('facit_authUsername', user);
-	}, [user]);
-
-	useEffect(() => {
-		if (user !== '') {
-			setUserData(getUserDataWithUsername(user));
-		} else {
-			setUserData({});
-		}
-	}, [user]);
+		getUserProfile();
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const value = useMemo(
 		() => ({
-			user,
-			setUser,
+			isAuthenticated,
+			setIsAuthenticated,
 			userData,
+			getUserProfile,
+			logout,
 		}),
-		[user, userData],
+		[userData, isAuthenticated, getUserProfile, logout],
 	);
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
