@@ -38,7 +38,7 @@ class CarouselContainer extends Component<TCarouselContainerProps, TCarouselCont
 
 	private touchStartY: number;
 
-	private cycleInterval: NodeJS.Timer | undefined;
+	private cycleInterval: NodeJS.Timer | undefined | number;
 
 	constructor(props: TCarouselContainerProps | Readonly<TCarouselContainerProps>) {
 		super(props);
@@ -118,15 +118,18 @@ class CarouselContainer extends Component<TCarouselContainerProps, TCarouselCont
 		// make sure not to have multiple intervals going...
 		this.clearInterval();
 		if (props.interval) {
-			this.cycleInterval = setInterval(() => {
-				// @ts-ignore
-				props.next();
-			}, parseInt(props.interval as string, 10));
+			this.cycleInterval = setInterval(
+				() => {
+					// @ts-ignore
+					props.next();
+				},
+				parseInt(props.interval as string, 10),
+			);
 		}
 	}
 
 	clearInterval() {
-		clearInterval(this.cycleInterval);
+		clearInterval(this.cycleInterval as number);
 	}
 
 	hoverStart(...args: any[]) {

@@ -16,11 +16,11 @@ interface IPageWrapperProps {
 }
 const PageWrapper = forwardRef<HTMLDivElement, IPageWrapperProps>(
 	({ isProtected, className, children }, ref) => {
-		const { user } = useContext(AuthContext);
+		const { userData } = useContext(AuthContext);
 
 		// const navigate = useNavigate();
 		useEffect(() => {
-			if (isProtected && user === '') {
+			if (isProtected && userData.firstName === '') {
 				// navigate(`../${demoPages.login.path}`);
 			}
 			return () => {};

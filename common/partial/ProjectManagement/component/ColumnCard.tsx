@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react';
-import useDarkMode from '../../../../hooks/useDarkMode';
 import { useFormik } from 'formik';
+import classNames from 'classnames';
+import useDarkMode from '../../../../hooks/useDarkMode';
 import Card, {
 	CardActions,
 	CardBody,
@@ -11,7 +12,6 @@ import Card, {
 	CardSubTitle,
 	CardTitle,
 } from '../../../../components/bootstrap/Card';
-import classNames from 'classnames';
 import Avatar from '../../../../components/Avatar';
 import Icon from '../../../../components/icon/Icon';
 import Badge from '../../../../components/bootstrap/Badge';
@@ -26,13 +26,9 @@ import Input from '../../../../components/bootstrap/forms/Input';
 import Textarea from '../../../../components/bootstrap/forms/Textarea';
 import Button from '../../../../components/bootstrap/Button';
 import Checks, { ChecksGroup } from '../../../../components/bootstrap/forms/Checks';
-// import Chat, { ChatGroup } from '../../../../components/Chat';
-// import CHATS from '../../../../common/data/chatDummyData';
-import InputGroup from '../../../../components/bootstrap/forms/InputGroup';
 import Select from '../../../../components/bootstrap/forms/Select';
 import Option from '../../../../components/bootstrap/Option';
-import USERS from '../../../../common/data/userDummyData';
-import TAGS from '../../../../common/data/boardTagsData';
+import TAGS from '../../../data/boardTagsData';
 import { TCard, TCards, TColumnsData } from '../type/types';
 import { move } from '../helper/helper';
 
@@ -71,7 +67,7 @@ const ColumnCard: FC<IColumnCard> = ({
 				cardsData[columnKey],
 				cardsData[formik.values.groupId],
 				{
-					index: index,
+					index,
 					droppableId: columnKey,
 				},
 				{ index: 0, droppableId: values.groupId },
@@ -265,24 +261,24 @@ const ColumnCard: FC<IColumnCard> = ({
 									</CardBody>
 								</Card>
 							)}
-							<Card shadow='sm'>
+							{/* <Card shadow='sm'>
 								<CardHeader>
 									<CardLabel icon='QuestionAnswer' iconColor='info'>
 										<CardTitle>Comments</CardTitle>
 									</CardLabel>
 								</CardHeader>
 								<CardBody>
-									{/*<Chat>*/}
-									{/*	{CHATS.CHLOE_VS_JOHN.map((msg) => (*/}
-									{/*		<ChatGroup*/}
-									{/*			key={msg.id}*/}
-									{/*			messages={msg.messages}*/}
-									{/*			// @ts-ignore*/}
-									{/*			user={msg.user}*/}
-									{/*			isReply={msg.isReply}*/}
-									{/*		/>*/}
-									{/*	))}*/}
-									{/*</Chat>*/}
+									<Chat>
+										{CHATS.CHLOE_VS_JOHN.map((msg) => (
+									<ChatGroup
+										key={msg.id}
+										messages={msg.messages}
+									{/*			// @ts-ignore */}
+							{/* user={msg.user}
+											isReply={msg.isReply} 
+									/> 
+									))}
+									</Chat> 
 								</CardBody>
 								<CardFooter className='d-block'>
 									<InputGroup>
@@ -292,7 +288,7 @@ const ColumnCard: FC<IColumnCard> = ({
 										</Button>
 									</InputGroup>
 								</CardFooter>
-							</Card>
+							</Card>  */}
 						</div>
 						<div className='col-md-4'>
 							<div className='row g-4 sticky-top'>
@@ -307,23 +303,6 @@ const ColumnCard: FC<IColumnCard> = ({
 												key={columnsData[columnItemKey].id}
 												value={columnsData[columnItemKey].id}>
 												{columnsData[columnItemKey].title}
-											</Option>
-										))}
-									</Select>
-								</FormGroup>
-								<FormGroup className='col-12' id='assignee' label='Assignee'>
-									<Select
-										ariaLabel='Board select'
-										placeholder='Select group'
-										onChange={formik.handleChange}
-										value={formik.values.assignee}>
-										{Object.keys(USERS).map((u) => (
-											// @ts-ignore
-											<Option key={USERS[u].id} value={USERS[u].username}>
-												{
-													// @ts-ignore
-													`${USERS[u].name} ${USERS[u].surname}`
-												}
 											</Option>
 										))}
 									</Select>

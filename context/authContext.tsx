@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
-import { IUserProps } from '../common/data/userDummyData';
+import IUserProps from '../common/data/userDummyData';
 import UserApi from '../common/services/user.service';
 
 export interface IAuthContextProps {

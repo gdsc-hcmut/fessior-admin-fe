@@ -1,6 +1,8 @@
 import React, { FC, useState } from 'react';
-import useDarkMode from '../../../../hooks/useDarkMode';
 import { useFormik } from 'formik';
+import classNames from 'classnames';
+import { Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
+import useDarkMode from '../../../../hooks/useDarkMode';
 import Card, {
 	CardActions,
 	CardBody,
@@ -10,7 +12,6 @@ import Card, {
 	CardLabel,
 	CardTitle,
 } from '../../../../components/bootstrap/Card';
-import classNames from 'classnames';
 import Badge from '../../../../components/bootstrap/Badge';
 import Dropdown, {
 	DropdownItem,
@@ -18,7 +19,6 @@ import Dropdown, {
 	DropdownToggle,
 } from '../../../../components/bootstrap/Dropdown';
 import Button from '../../../../components/bootstrap/Button';
-import { Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { getListStyle } from '../helper/style';
 import Modal, {
 	ModalBody,
@@ -31,8 +31,6 @@ import Input from '../../../../components/bootstrap/forms/Input';
 import Textarea from '../../../../components/bootstrap/forms/Textarea';
 import Select from '../../../../components/bootstrap/forms/Select';
 import Option from '../../../../components/bootstrap/Option';
-import USERS from '../../../../common/data/userDummyData';
-import TAGS from '../../../../common/data/boardTagsData';
 import { TCards, TColumnData, TColumnsData } from '../type/types';
 import ColumnCardWrapper from './ColumnCardWrapper';
 
@@ -107,7 +105,7 @@ const Columns: FC<IColumns> = ({ cardsData, columnsData, setCardsData }) => {
 									providedDroppable: DroppableProvided,
 									snapshotDroppable: DroppableStateSnapshot,
 								) => (
-									<>
+									<div>
 										<CardBody
 											// eslint-disable-next-line react/jsx-props-no-spreading
 											{...providedDroppable.droppableProps}
@@ -121,7 +119,7 @@ const Columns: FC<IColumns> = ({ cardsData, columnsData, setCardsData }) => {
 											/>
 											{providedDroppable.placeholder}
 										</CardBody>
-									</>
+									</div>
 								)}
 							</Droppable>
 							<CardFooter>
@@ -189,41 +187,6 @@ const Columns: FC<IColumns> = ({ cardsData, columnsData, setCardsData }) => {
 												key={columnsData[columnItemKey].id}
 												value={columnsData[columnItemKey].id}>
 												{columnsData[columnItemKey].title}
-											</Option>
-										))}
-									</Select>
-								</FormGroup>
-								<FormGroup className='col-12' id='assignee' label='Assignee'>
-									<Select
-										ariaLabel='Board select'
-										placeholder='Select group'
-										onChange={formik.handleChange}
-										value={formik.values.assignee}>
-										{Object.keys(USERS).map((u) => (
-											// @ts-ignore
-											<Option key={USERS[u].id} value={USERS[u].username}>
-												{
-													// @ts-ignore
-													`${USERS[u].name} ${USERS[u].surname}`
-												}
-											</Option>
-										))}
-									</Select>
-								</FormGroup>
-								<FormGroup className='col-12' id='tags' label='Tags'>
-									<Select
-										multiple
-										ariaLabel='Board select'
-										placeholder='Select group'
-										onChange={formik.handleChange}
-										value={formik.values.tags}>
-										{Object.keys(TAGS).map((t) => (
-											// @ts-ignore
-											<Option key={TAGS[t].id} value={TAGS[t].id}>
-												{
-													// @ts-ignore
-													TAGS[t].title
-												}
 											</Option>
 										))}
 									</Select>
