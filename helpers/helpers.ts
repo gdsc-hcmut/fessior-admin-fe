@@ -1,3 +1,5 @@
+import ITargetGroup from "../type/target-group-type";
+
 export function test() {
 	return null;
 }
@@ -114,3 +116,8 @@ export const pathToRoute = (path: string): string => {
 	if (path?.length > 1 && path?.substring(1, 0) === '/') return path?.substring(1, path?.length);
 	return path;
 };
+
+export 	const targetGroupsIdToName = (targetGroupsIds: string[], targetGroups: ITargetGroup[]) =>
+targetGroupsIds.map(
+	(targetGroup) => targetGroups.find((group) => group._id === targetGroup)!.name,
+);
