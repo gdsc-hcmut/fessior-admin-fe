@@ -183,7 +183,7 @@ const FeatureFlag = () => {
 					]),
 				);
 			} catch (e: any) {
-				console.log(typeof e);
+				console.log(e);
 				setToast(e.response.data.message, false);
 			}
 		};
