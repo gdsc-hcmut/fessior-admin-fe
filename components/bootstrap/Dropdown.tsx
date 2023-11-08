@@ -43,11 +43,7 @@ export const DropdownToggle: FC<IDropdownToggleProps> = ({
 			{({ ref }) =>
 				cloneElement(
 					// @ts-ignore
-					children.props.isButtonGroup ? (
-						<span className='visually-hidden'>Toggle Dropdown</span>
-					) : (
-						children
-					),
+					children,
 					{
 						// @ts-ignore
 						ref: (node: null) => setButtonRef(node, ref),
@@ -170,9 +166,6 @@ export const DropdownMenu: FC<IDropdownMenuProps> = ({
 							className,
 						)}
 						data-bs-popper={breakpoint ? 'static' : null}
-						onMouseLeave={
-							isCloseAfterLeave && setIsOpen ? () => setIsOpen(false) : undefined
-						}
 						// eslint-disable-next-line react/jsx-props-no-spreading
 						{...props}>
 						{children}

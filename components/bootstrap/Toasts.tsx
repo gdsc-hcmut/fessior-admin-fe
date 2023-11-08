@@ -11,7 +11,7 @@ interface IToastHeaderProps {
 	time?: string | null;
 	isDismiss?: boolean;
 }
-const ToastHeader: FC<IToastHeaderProps> = ({
+export const ToastHeader: FC<IToastHeaderProps> = ({
 	icon,
 	iconColor,
 	title,
@@ -21,9 +21,9 @@ const ToastHeader: FC<IToastHeaderProps> = ({
 }) => {
 	// @ts-ignore
 	// eslint-disable-next-line react/prop-types
-	const { onDismiss } = props;
+	const { onDismiss, className } = props;
 	return (
-		<div className='toast-header'>
+		<div className={`toast-header ${className}`}>
 			{icon && <Icon icon={icon} size='lg' color={iconColor} className='me-2' />}
 			{title && <strong className='me-auto'>{title}</strong>}
 			{time && <small>{time}</small>}
@@ -59,7 +59,7 @@ ToastHeader.defaultProps = {
 interface IToastBodyProps {
 	children: ReactNode;
 }
-const ToastBody: FC<IToastBodyProps> = ({ children }) => {
+export const ToastBody: FC<IToastBodyProps> = ({ children }) => {
 	return <div className='toast-body'>{children}</div>;
 };
 ToastBody.propTypes = {
