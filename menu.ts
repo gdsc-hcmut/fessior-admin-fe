@@ -98,3 +98,27 @@ export const pageLayoutTypesPagesMenu = {
 		},
 	},
 };
+
+export const navigation = {
+	featureFlag: {
+		id: 'feature-flag',
+		path: 'feature-flags',
+		text: 'Feature Flag',
+		icon: 'Flag',
+	},
+	targetGroup: {
+		id: 'target-group',
+		path: 'target-groups',
+		text: 'Target Group',
+		icon: 'Groups',
+	},
+};
+
+export const authentication = {
+	login: {
+		id: 'login',
+		text: 'Login',
+		path: 'auth-pages/login',
+		icon: 'Login',
+	},
+};

@@ -1,6 +1,6 @@
 import { FC, useState, useEffect, useRef } from 'react';
 import ITargetGroup from '../type/target-group-type';
-import IFeatureFlag, { TKey } from '../type/feature-flag-type';
+import IFeatureFlag from '../type/feature-flag-type';
 import OffCanvas, { OffCanvasHeader, OffCanvasTitle, OffCanvasBody } from './bootstrap/OffCanvas';
 import FormGroup from './bootstrap/forms/FormGroup';
 import Input from './bootstrap/forms/Input';
@@ -20,14 +20,14 @@ interface IFeatureFlagFormProps {
 		isEnabled: boolean,
 	) => () => Promise<void>;
 	onCreate?: (
-		key: TKey,
+		key: string,
 		description: string,
 		targetGroupsNames: string[],
 		isEnabled: boolean,
 	) => () => Promise<void>;
 	isShown: boolean;
 	setIsShown: () => void;
-	targetGroupsObjects: ITargetGroup[];
+	targetGroups: ITargetGroup[];
 }
 
 const FeatureFlagForm: FC<IFeatureFlagFormProps> = ({
@@ -38,11 +38,13 @@ const FeatureFlagForm: FC<IFeatureFlagFormProps> = ({
 	onCreate,
 	isShown,
 	setIsShown,
-	targetGroupsObjects,
+	targetGroups,
 }) => {
 	const [key, setKey] = useState(featureFlag ? featureFlag.key : '');
 	const [description, setDescription] = useState(featureFlag ? featureFlag.description : '');
-	const [targetGroups, seITargetGroups] = useState(featureFlag ? featureFlag.targetGroups : []);
+	const [targetGroupNames, setTargetGroupNames] = useState(
+		featureFlag ? featureFlag.targetGroups : [],
+	);
 	const [isEnabled, setIsEnabled] = useState<boolean>(
 		featureFlag ? featureFlag.isEnabled : false,
 	);
@@ -55,7 +57,7 @@ const FeatureFlagForm: FC<IFeatureFlagFormProps> = ({
 		} else {
 			setHasChanged(true);
 		}
-	}, [description, targetGroups, isEnabled]);
+	}, [description, targetGroupNames, isEnabled]);
 
 	const handleChanges = (fieldName: string) => {
 		switch (fieldName) {
@@ -69,12 +71,12 @@ const FeatureFlagForm: FC<IFeatureFlagFormProps> = ({
 				return () => setIsEnabled(!isEnabled);
 			case 'targetGroups':
 				return (targetGroup: string) => {
-					if (targetGroups.find((selected) => selected === targetGroup)) {
-						seITargetGroups(
-							targetGroups.filter((selected) => selected !== targetGroup),
+					if (targetGroupNames.find((selected) => selected === targetGroup)) {
+						setTargetGroupNames(
+							targetGroupNames.filter((selected) => selected !== targetGroup),
 						);
 					} else {
-						seITargetGroups(targetGroups.concat([targetGroup]));
+						setTargetGroupNames(targetGroupNames.concat([targetGroup]));
 					}
 				};
 			default:
@@ -85,7 +87,7 @@ const FeatureFlagForm: FC<IFeatureFlagFormProps> = ({
 	const emptyForm = () => {
 		setKey('');
 		setDescription('');
-		seITargetGroups([]);
+		setTargetGroupNames([]);
 		setIsEnabled(false);
 	};
 
@@ -102,7 +104,7 @@ const FeatureFlagForm: FC<IFeatureFlagFormProps> = ({
 						<div className='mb-3'>
 							<Label htmlFor='key'>Key</Label>
 							<Input
-								className={mode === 'create' ? 'bg-[#c5e2ff]' : ''}
+								className={`border ${mode === 'create' ? '' : 'bg-[#cccccc]'}`}
 								id='key'
 								disabled={mode === 'edit'}
 								onInput={handleChanges('key')}
@@ -112,7 +114,7 @@ const FeatureFlagForm: FC<IFeatureFlagFormProps> = ({
 						<div className='my-3'>
 							<Label htmlFor='description'>Description</Label>
 							<Input
-								className='bg-[#c5e2ff]'
+								className='border'
 								id='description'
 								onInput={handleChanges('description')}
 								value={description}
@@ -124,8 +126,8 @@ const FeatureFlagForm: FC<IFeatureFlagFormProps> = ({
 								onSelect={
 									handleChanges('targetGroups') as (targetGroup: string) => void
 								}
-								selected={targetGroups}
-								fullList={targetGroupsObjects.map((obj) => obj.name)}
+								values={targetGroupNames}
+								options={targetGroups.map((obj) => obj.name)}
 							/>
 						</div>
 						<div className='my-3'>
@@ -142,9 +144,14 @@ const FeatureFlagForm: FC<IFeatureFlagFormProps> = ({
 							className='mt-5'
 							onClick={() => {
 								if (mode === 'edit' && onEdit) {
-									onEdit(featureFlagId!, description, targetGroups, isEnabled)();
+									onEdit(
+										featureFlagId!,
+										description,
+										targetGroupNames,
+										isEnabled,
+									)();
 								} else if (mode === 'create' && onCreate) {
-									onCreate(key as TKey, description, targetGroups, isEnabled)();
+									onCreate(key, description, targetGroupNames, isEnabled)();
 									emptyForm();
 								}
 								setIsShown();

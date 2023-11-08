@@ -2,9 +2,8 @@ import { useState, useEffect, Fragment } from 'react';
 import FeatureFlagService from '../../common/services/feature-flag.service';
 import TargetGroupService from '../../common/services/target-group.service';
 import { targetGroupsIdToName } from '../../helpers/helpers';
-import IFeatureFlag, { TKey, IPlatform } from '../../type/feature-flag-type';
+import IFeatureFlag, { IPlatform } from '../../type/feature-flag-type';
 import ITargetGroup from '../../type/target-group-type';
-import { AuthContextProvider } from '../../context/authContext';
 import Page from '../../layout/Page/Page';
 import Content from '../../layout/Content/Content';
 import Card, {
@@ -24,16 +23,21 @@ import Modal, {
 	ModalFooter,
 	ModalHeader,
 } from '../../components/bootstrap/Modal';
+import { ToastContainer } from '../../components/bootstrap/Toasts';
 
 // const PLATFORMS = ['web', 'android', 'ios'];
 const MAX_TARGET_GROUPS_SHOWN = 3;
+const MAX_DESCRIPTION_LENGTH = 40;
 
 const FeatureFlag = () => {
-	const [featureFlags, seIFeatureFlags] = useState<IFeatureFlag[] | null>(null);
-	const [targetGroupsObjects, seITargetGroupsObjects] = useState<ITargetGroup[] | null>(null);
+	const [featureFlags, setFeatureFlags] = useState<IFeatureFlag[] | null>(null);
+	const [targetGroups, setTargetGroups] = useState<ITargetGroup[] | null>(null);
 	const [editFormShowing, setEditFormShowing] = useState(-1);
 	const [createFormShowing, setCreateFormShowing] = useState(false);
 	const [deleteModalShowing, setDeleteModalShowing] = useState(-1);
+	const [toastInfo, setToastInfo] = useState<{ isSuccess: boolean; message: string } | null>(
+		null,
+	);
 
 	useEffect(() => {
 		(async () => {
@@ -41,7 +45,7 @@ const FeatureFlag = () => {
 				FeatureFlagService.getAll(),
 				TargetGroupService.getAll(),
 			]);
-			seIFeatureFlags(
+			setFeatureFlags(
 				featureFlagsInitial.map((featureFlag: IFeatureFlag) => {
 					return {
 						...featureFlag,
@@ -52,20 +56,30 @@ const FeatureFlag = () => {
 					};
 				}),
 			);
-			seITargetGroupsObjects(targetGroupsInitial);
+			setTargetGroups(targetGroupsInitial);
 		})();
 	}, []);
 
-	if (!featureFlags || !targetGroupsObjects) {
+	if (!featureFlags || !targetGroups) {
 		return null;
 	}
+
+	const setToast = (message: string, isSuccess: boolean = true) => {
+		setToastInfo({
+			isSuccess,
+			message,
+		});
+		setTimeout(() => {
+			setToastInfo(null);
+		}, 3000);
+	};
 
 	const renderTargetGroups = (featureFlag: IFeatureFlag) => {
 		const targetGroupsAllowed =
 			featureFlag.targetGroups.length > MAX_TARGET_GROUPS_SHOWN
-				? featureFlag.targetGroups.slice(0, 3)
+				? featureFlag.targetGroups.slice(0, MAX_TARGET_GROUPS_SHOWN)
 				: featureFlag.targetGroups;
-		const remaining = featureFlag.targetGroups.slice(3);
+		const remaining = featureFlag.targetGroups.slice(MAX_TARGET_GROUPS_SHOWN);
 
 		return (
 			<>
@@ -90,6 +104,22 @@ const FeatureFlag = () => {
 		);
 	};
 
+	const renderDescription = (featureFlag: IFeatureFlag) => {
+		const descriptionAllowed =
+			featureFlag.description.length > MAX_DESCRIPTION_LENGTH
+				? featureFlag.description.slice(0, MAX_DESCRIPTION_LENGTH)
+				: featureFlag.description;
+		const remaining = featureFlag.description.slice(MAX_DESCRIPTION_LENGTH);
+
+		return featureFlag.description.length > MAX_DESCRIPTION_LENGTH ? (
+			<Tooltips className='mb-3 text-[13px]' title={featureFlag.description}>
+				{`${featureFlag.description.slice(0, MAX_DESCRIPTION_LENGTH)}...`}
+			</Tooltips>
+		) : (
+			featureFlag.description
+		);
+	};
+
 	const handleUpdate = (
 		featureFlagId: string,
 		description: string,
@@ -100,20 +130,22 @@ const FeatureFlag = () => {
 			const newFeatureFlag = {
 				description,
 				targetGroups: targetGroupsNames.map(
-					(name) =>
-						targetGroupsObjects.find((targetGroup) => targetGroup.name === name)!._id,
+					(name) => targetGroups.find((targetGroup) => targetGroup.name === name)!._id,
 				),
 				isEnabled,
 			} as IFeatureFlag;
 
 			try {
 				await FeatureFlagService.update(featureFlagId, newFeatureFlag);
-			} catch (e) {
+			} catch (e: any) {
 				console.log(e);
+				setToast(e.response.data.message, false);
 				return;
 			}
 
-			seIFeatureFlags(
+			setToast('Update successfully');
+
+			setFeatureFlags(
 				featureFlags.map((featureFlag) =>
 					featureFlag._id === featureFlagId
 						? {
@@ -129,7 +161,7 @@ const FeatureFlag = () => {
 	};
 
 	const handleCreate = (
-		key: TKey,
+		key: string,
 		description: string,
 		targetGroupsNames: string[],
 		isEnabled: boolean,
@@ -139,8 +171,7 @@ const FeatureFlag = () => {
 				key,
 				description,
 				targetGroups: targetGroupsNames.map(
-					(name) =>
-						targetGroupsObjects.find((targetGroup) => targetGroup.name === name)!._id,
+					(name) => targetGroups.find((targetGroup) => targetGroup.name === name)!._id,
 				),
 				platforms: [] as IPlatform[],
 				isEnabled,
@@ -148,19 +179,18 @@ const FeatureFlag = () => {
 
 			try {
 				const response = await FeatureFlagService.create(newFeatureFlag);
-				seIFeatureFlags(
+				setToast('Create successfully');
+				setFeatureFlags(
 					featureFlags.concat([
 						{
 							...response,
-							targetGroups: targetGroupsIdToName(
-								response.targetGroups,
-								targetGroupsObjects,
-							),
+							targetGroups: targetGroupsIdToName(response.targetGroups, targetGroups),
 						},
 					]),
 				);
-			} catch (e) {
+			} catch (e: any) {
 				console.log(e);
+				setToast(e.response.data.message, false);
 			}
 		};
 	};
@@ -169,15 +199,17 @@ const FeatureFlag = () => {
 		return async () => {
 			try {
 				await FeatureFlagService.deleteById(id);
-				seIFeatureFlags(featureFlags.filter((featureFlag) => featureFlag._id !== id));
-			} catch (e) {
+				setToast('Delete successfully');
+				setFeatureFlags(featureFlags.filter((featureFlag) => featureFlag._id !== id));
+			} catch (e: any) {
 				console.log(e);
+				setToast(e.response.data.message, false);
 			}
 		};
 	};
 
 	return (
-		<AuthContextProvider>
+		<>
 			<Content>
 				<Page container='fluid'>
 					<Card>
@@ -214,7 +246,7 @@ const FeatureFlag = () => {
 												<tr>
 													<td>{index + 1}</td>
 													<td>{featureFlag.key}</td>
-													<td>{featureFlag.description}</td>
+													<td>{renderDescription(featureFlag)}</td>
 													<td>{renderTargetGroups(featureFlag)}</td>
 													<td
 														className={
@@ -253,7 +285,7 @@ const FeatureFlag = () => {
 												</tr>
 												<FeatureFlagForm
 													mode='edit'
-													targetGroupsObjects={targetGroupsObjects}
+													targetGroups={targetGroups}
 													featureFlag={featureFlag}
 													featureFlagId={featureFlag._id}
 													onEdit={handleUpdate}
@@ -307,14 +339,27 @@ const FeatureFlag = () => {
 					</Card>
 					<FeatureFlagForm
 						mode='create'
-						targetGroupsObjects={targetGroupsObjects}
+						targetGroups={targetGroups}
 						onCreate={handleCreate}
 						isShown={createFormShowing}
 						setIsShown={() => setCreateFormShowing(false)}
 					/>
 				</Page>
 			</Content>
-		</AuthContextProvider>
+			{toastInfo && (
+				<ToastContainer>
+					<div
+						className={`text-[1.2rem] h-14 w-[30rem] flex items-center text-white p-4 ${
+							toastInfo.isSuccess ? 'bg-[#005b2e]' : 'bg-[#b3170a]'
+						}`}>
+						<Icon
+							className='me-3'
+							icon={toastInfo.isSuccess ? 'TaskAlt' : 'Block'}></Icon>
+						{toastInfo.message}
+					</div>
+				</ToastContainer>
+			)}
+		</>
 	);
 };
 

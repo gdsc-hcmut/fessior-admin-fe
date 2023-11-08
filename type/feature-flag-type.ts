@@ -3,16 +3,9 @@ export interface IPlatform {
 	minSupportedVersion: string;
 }
 
-export type TKey =
-	| 'ShortenUrl'
-	| 'UploadInformation'
-	| 'GetUrlList'
-	| 'GetUrl'
-	| 'ImportUsersToOrganization';
-
 export default interface IFeatureFlag {
 	_id: string;
-	key: TKey;
+	key: string;
 	description: string;
 	targetGroups: string[];
 	platforms: IPlatform[];
