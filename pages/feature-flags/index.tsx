@@ -105,12 +105,6 @@ const FeatureFlag = () => {
 	};
 
 	const renderDescription = (featureFlag: IFeatureFlag) => {
-		const descriptionAllowed =
-			featureFlag.description.length > MAX_DESCRIPTION_LENGTH
-				? featureFlag.description.slice(0, MAX_DESCRIPTION_LENGTH)
-				: featureFlag.description;
-		const remaining = featureFlag.description.slice(MAX_DESCRIPTION_LENGTH);
-
 		return featureFlag.description.length > MAX_DESCRIPTION_LENGTH ? (
 			<Tooltips className='mb-3 text-[13px]' title={featureFlag.description}>
 				{`${featureFlag.description.slice(0, MAX_DESCRIPTION_LENGTH)}...`}
@@ -189,7 +183,7 @@ const FeatureFlag = () => {
 					]),
 				);
 			} catch (e: any) {
-				console.log(e);
+				console.log(typeof e);
 				setToast(e.response.data.message, false);
 			}
 		};

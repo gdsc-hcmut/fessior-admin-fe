@@ -57,7 +57,7 @@ const FeatureFlagForm: FC<IFeatureFlagFormProps> = ({
 		} else {
 			setHasChanged(true);
 		}
-	}, [description, targetGroupNames, isEnabled]);
+	}, [key, description, targetGroupNames, isEnabled]);
 
 	const handleChanges = (fieldName: string) => {
 		switch (fieldName) {

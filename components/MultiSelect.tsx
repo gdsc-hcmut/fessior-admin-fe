@@ -6,8 +6,8 @@ import Dropdown, { DropdownItem, DropdownMenu, DropdownToggle } from './bootstra
 import Icon from './icon/Icon';
 
 interface IMultiSelectProps {
-	values: any[];
-	options: any[];
+	values: string[];
+	options: string[];
 	onSelect: (item: string) => void;
 }
 
@@ -31,7 +31,7 @@ const MultiSelect: FC<IMultiSelectProps> = ({ values, options, onSelect }) => {
 				</DropdownToggle>
 				<DropdownMenu className='w-100'>
 					{nonValues.map((item) => (
-						<DropdownItem>
+						<DropdownItem key={item}>
 							<div
 								onClick={() => {
 									onSelect(item);
