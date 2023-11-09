@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { GetStaticProps } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Brand from '../../../layout/Brand/Brand';
@@ -7,7 +7,7 @@ import User from '../../../layout/User/User';
 import { navigation, authentication } from '../../../menu';
 import ThemeContext from '../../../context/themeContext';
 import Aside, { AsideBody, AsideFoot, AsideHead } from '../../../layout/Aside/Aside';
-import AuthContext, { AuthContextProvider } from '../../../context/authContext';
+import AuthContext from '../../../context/authContext';
 // import { useTranslation } from 'next-i18next';
 // import classNames from 'classnames';
 // import { dashboardPagesMenu, demoPagesMenu, pageLayoutTypesPagesMenu } from '../../../menu';

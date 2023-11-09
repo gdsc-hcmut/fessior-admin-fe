@@ -1,4 +1,4 @@
-import { FC, useState, useRef } from 'react';
+import { FC, useState } from 'react';
 import Button from './bootstrap/Button';
 import Input from './bootstrap/forms/Input';
 import Card, { CardBody } from './bootstrap/Card';
@@ -32,11 +32,14 @@ const MultiSelect: FC<IMultiSelectProps> = ({ values, options, onSelect }) => {
 				<DropdownMenu className='w-100'>
 					{nonValues.map((item) => (
 						<DropdownItem key={item}>
+							{/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
 							<div
+								role='menuitem'
+								tabIndex={0}
 								onClick={() => {
 									onSelect(item);
 								}}
-								className={`align-middle flex align-items-center`}>
+								className='align-middle flex align-items-center'>
 								{item}
 							</div>
 						</DropdownItem>

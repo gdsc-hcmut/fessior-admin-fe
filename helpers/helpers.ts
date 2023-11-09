@@ -1,4 +1,4 @@
-import ITargetGroup from "../type/target-group-type";
+import ITargetGroup from '../type/target-group-type';
 
 export function test() {
 	return null;
@@ -117,7 +117,7 @@ export const pathToRoute = (path: string): string => {
 	return path;
 };
 
-export 	const targetGroupsIdToName = (targetGroupsIds: string[], targetGroups: ITargetGroup[]) =>
-targetGroupsIds.map(
-	(targetGroup) => targetGroups.find((group) => group._id === targetGroup)!.name,
-);
+export const targetGroupsIdToName = (targetGroupIds: string[], targetGroups: ITargetGroup[]) =>
+	targetGroupIds.map(
+		(targetGroup) => targetGroups.find((group) => group._id === targetGroup)!.name,
+	);
