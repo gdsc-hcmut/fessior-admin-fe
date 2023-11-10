@@ -1,5 +1,3 @@
-import ITargetGroup from '../type/target-group-type';
-
 export function test() {
 	return null;
 }
@@ -117,7 +115,5 @@ export const pathToRoute = (path: string): string => {
 	return path;
 };
 
-export const targetGroupsIdToName = (targetGroupIds: string[], targetGroups: ITargetGroup[]) =>
-	targetGroupIds.map(
-		(targetGroup) => targetGroups.find((group) => group._id === targetGroup)!.name,
-	);
+export const idsToObjects = <T extends { _id: string; name: string }>(ids: string[], items: T[]) =>
+	ids.map((id) => items.find((item) => item._id === id));

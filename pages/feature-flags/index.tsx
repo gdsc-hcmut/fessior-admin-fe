@@ -1,7 +1,7 @@
 import { useState, useEffect, Fragment } from 'react';
 import FeatureFlagService from '../../common/services/feature-flag.service';
 import TargetGroupService from '../../common/services/target-group.service';
-import { targetGroupsIdToName } from '../../helpers/helpers';
+import { idsToObjects } from '../../helpers/helpers';
 import IFeatureFlag, { IPlatform } from '../../type/feature-flag-type';
 import ITargetGroup from '../../type/target-group-type';
 import Page from '../../layout/Page/Page';
@@ -49,10 +49,10 @@ const FeatureFlag = () => {
 				featureFlagsInitial.map((featureFlag: IFeatureFlag) => {
 					return {
 						...featureFlag,
-						targetGroups: targetGroupsIdToName(
+						targetGroups: idsToObjects(
 							featureFlag.targetGroups,
 							targetGroupsInitial,
-						),
+						).map((targetGroup) => targetGroup!.name),
 					};
 				}),
 			);
@@ -178,7 +178,9 @@ const FeatureFlag = () => {
 					featureFlags.concat([
 						{
 							...response,
-							targetGroups: targetGroupsIdToName(response.targetGroups, targetGroups),
+							targetGroups: idsToObjects(response.targetGroups, targetGroups).map(
+								(targetGroup) => targetGroup!.name,
+							),
 						},
 					]),
 				);
