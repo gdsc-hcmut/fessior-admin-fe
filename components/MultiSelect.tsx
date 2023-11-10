@@ -13,8 +13,10 @@ interface IMultiSelectProps {
 
 const MultiSelect: FC<IMultiSelectProps> = ({ values, options, onSelect }) => {
 	const [search, setSearch] = useState('');
-	const nonValues = options.filter(
-		(item) => !values.find((selectedItem) => selectedItem === item),
+	const searchedNonValues = options.filter(
+		(item) =>
+			!values.find((selectedItem) => selectedItem === item) &&
+			item.toLowerCase().includes(search),
 	);
 
 	return (
@@ -25,12 +27,12 @@ const MultiSelect: FC<IMultiSelectProps> = ({ values, options, onSelect }) => {
 						placeholder={`${values.length} selected`}
 						value={search}
 						onInput={(event: InputEvent) =>
-							setSearch((event.currentTarget as HTMLInputElement).value)
+							setSearch((event.currentTarget as HTMLInputElement).value.toLowerCase())
 						}
 					/>
 				</DropdownToggle>
 				<DropdownMenu className='w-100'>
-					{nonValues.map((item) => (
+					{searchedNonValues.map((item) => (
 						<DropdownItem key={item}>
 							{/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
 							<div
