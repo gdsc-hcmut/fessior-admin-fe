@@ -49,10 +49,10 @@ const FeatureFlag = () => {
 				featureFlagsInitial.map((featureFlag: IFeatureFlag) => {
 					return {
 						...featureFlag,
-						targetGroups: idsToObjects(
+						targetGroups: idsToObjects<ITargetGroup>(
 							featureFlag.targetGroups,
 							targetGroupsInitial,
-						).map((targetGroup) => targetGroup!.name),
+						).map((targetGroup) => targetGroup.name),
 					};
 				}),
 			);
@@ -179,7 +179,7 @@ const FeatureFlag = () => {
 						{
 							...response,
 							targetGroups: idsToObjects(response.targetGroups, targetGroups).map(
-								(targetGroup) => targetGroup!.name,
+								(targetGroup) => targetGroup.name,
 							),
 						},
 					]),
