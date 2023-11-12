@@ -1,4 +1,5 @@
 import { FC, useState, useEffect, useRef } from 'react';
+import useEventListener from '../hooks/useEventListener';
 import ITargetGroup from '../type/target-group-type';
 import IFeatureFlag from '../type/feature-flag-type';
 import OffCanvas, { OffCanvasHeader, OffCanvasTitle, OffCanvasBody } from './bootstrap/OffCanvas';
@@ -50,6 +51,12 @@ const FeatureFlagForm: FC<IFeatureFlagFormProps> = ({
 	);
 	const [hasChanged, setHasChanged] = useState(false);
 	const renderCount = useRef(0);
+
+	useEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Escape') {
+			setIsShown();
+		}
+	});
 
 	useEffect(() => {
 		if (renderCount.current <= 1) {
