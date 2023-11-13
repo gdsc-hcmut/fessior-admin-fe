@@ -119,18 +119,18 @@ const TargetGroup = () => {
 							</CardActions>
 						</CardHeader>
 						<CardBody>
-							<table className='table'>
+							<table className='table-fixed'>
 								<thead>
-									<tr>
-										<th>No.</th>
-										<th>Name</th>
-										<th>Actions</th>
+									<tr className='h-16'>
+										<th className='w-1/4'>No.</th>
+										<th className='w-2/4'>Name</th>
+										<th className='w-1/4'>Actions</th>
 									</tr>
 								</thead>
 								<tbody>
 									{targetGroups.map((targetGroup, index) => (
 										<Fragment key={targetGroup._id}>
-											<tr>
+											<tr className='h-16'>
 												<td>{index + 1}</td>
 												<td>
 													<TargetGroupName
