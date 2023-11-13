@@ -2,6 +2,7 @@ import { FC, useState, useEffect, useRef } from 'react';
 import useEventListener from '../hooks/useEventListener';
 import ITargetGroup from '../type/target-group-type';
 import IFeatureFlag from '../type/feature-flag-type';
+import TMultiSelectItem from '../type/multi-select-type';
 import OffCanvas, { OffCanvasHeader, OffCanvasTitle, OffCanvasBody } from './bootstrap/OffCanvas';
 import FormGroup from './bootstrap/forms/FormGroup';
 import Input from './bootstrap/forms/Input';
