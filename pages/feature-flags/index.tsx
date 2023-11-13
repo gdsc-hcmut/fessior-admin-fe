@@ -2,7 +2,6 @@ import { useState, useEffect, Fragment } from 'react';
 import FeatureFlagService from '../../common/services/feature-flag.service';
 import TargetGroupService from '../../common/services/target-group.service';
 import { idsToObjects } from '../../helpers/helpers';
-import { idsToObjects } from '../../helpers/helpers';
 import IFeatureFlag, { IPlatform } from '../../type/feature-flag-type';
 import ITargetGroup from '../../type/target-group-type';
 import Page from '../../layout/Page/Page';
