@@ -1,5 +1,5 @@
 // LIB
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 // SERVICES
@@ -11,7 +11,12 @@ import ITargetGroup from '../../../type/target-group-type';
 // COMPONENTS
 import Content from '../../../layout/Content/Content';
 import Page from '../../../layout/Page/Page';
-import Card, { CardTitle, CardHeader, CardBody } from '../../../components/bootstrap/Card';
+import Card, {
+	CardTitle,
+	CardHeader,
+	CardBody,
+	CardActions,
+} from '../../../components/bootstrap/Card';
 import Button from '../../../components/bootstrap/Button';
 import Icon from '../../../components/icon/Icon';
 import Input from '../../../components/bootstrap/forms/Input';
@@ -21,11 +26,21 @@ import { ToastContainer } from '../../../components/bootstrap/Toasts';
 const TargetGroupUsers = () => {
 	const [targetGroup, setTargetGroup] = useState<ITargetGroup | null>(null);
 	const [userOptions, setUserOptions] = useState<IUser[] | null>(null);
-	const [userValues, setUserValues] = useState<IUser[]>([]);
+	const [userValues, setUserValues] = useState<IUser[] | null>(null);
 	const [search, setSearch] = useState('');
 	const [toastInfo, setToastInfo] = useState<{ isSuccess: boolean; message: string } | null>(
 		null,
 	);
+	const [hasChanged, setHasChanged] = useState(false);
+	const renderCount = useRef(0);
+
+	useEffect(() => {
+		if (renderCount.current <= 2) {
+			renderCount.current += 1;
+		} else {
+			setHasChanged(true);
+		}
+	}, [userValues]);
 
 	const router = useRouter();
 	const targetGroupId = router.query['target-group-id'];
@@ -48,7 +63,7 @@ const TargetGroupUsers = () => {
 		})();
 	}, [router.isReady, targetGroupId]);
 
-	if (!(userOptions && router.isReady && targetGroup)) return null;
+	if (!(router.isReady && userOptions && userValues && targetGroup)) return null;
 
 	const setToast = (message: string, isSuccess: boolean = true) => {
 		setToastInfo({
@@ -60,34 +75,34 @@ const TargetGroupUsers = () => {
 		}, 3000);
 	};
 
-	const handleToggleUser = (user: IUser, isAdding: boolean) => {
-		return async () => {
-			try {
-				const updatePayload = {
-					...targetGroup,
-					users: isAdding
-						? targetGroup.users.concat(user._id)
-						: targetGroup.users.filter((oldUserId) => oldUserId !== user._id),
-				};
-				await targetGroupService.update(targetGroup._id, updatePayload);
-				setTargetGroup(updatePayload);
-				setUserValues(
-					updatePayload.users.map(
-						(userId: string) => userOptions.find((option) => option._id === userId)!,
-					),
-				);
-			} catch (e: any) {
-				setToast(e.response.data.message, false);
-				console.log(e);
+	const handleSaveUser = async () => {
+		const updatePayload = {
+			...targetGroup,
+			users: userValues.map((user) => user._id),
+		};
+		try {
+			await targetGroupService.update(targetGroup._id, updatePayload);
+		} catch (e: any) {
+			setToast(e.response.data.message, false);
+			console.log(e);
+			return;
+		}
+		setToast('Update successfully');
+		setTargetGroup(updatePayload);
+	};
+
+	const handleToggleUser = (user: IUser) => {
+		return () => {
+			if (isUserSelected(user)) {
+				setUserValues(userValues.filter((userValue) => userValue._id !== user._id));
+			} else {
+				setUserValues(userValues.concat([user]));
 			}
-			setToast('Update successfully');
 		};
 	};
 
 	const isUserSelected = (user: IUser) => {
-		return userValues.find(
-			(selectedUser) => JSON.stringify(user) === JSON.stringify(selectedUser),
-		);
+		return userValues.find((selectedUser) => user._id === selectedUser._id);
 	};
 
 	const sortedAndSearched = userOptions
@@ -109,11 +124,21 @@ const TargetGroupUsers = () => {
 					<Card>
 						<CardHeader>
 							<CardTitle className='h3'>{`Target Group: ${targetGroup.name}`}</CardTitle>
+							<CardActions>
+								<Button
+									rounded={1}
+									isDisable={!hasChanged}
+									color='primary'
+									onClick={handleSaveUser}>
+									<Icon className='inline-block' icon='Save' />
+									Save changes
+								</Button>
+							</CardActions>
 						</CardHeader>
 						<CardBody>
 							<Label htmlFor='search'>Search</Label>
 							<Input
-								className=''
+								className='mb-2'
 								id='search'
 								// disabled={}
 								onInput={(event: InputEvent) => {
@@ -167,10 +192,7 @@ const TargetGroupUsers = () => {
 														isUserSelected(user) ? 'danger' : 'primary'
 													}
 													isActive
-													onClick={handleToggleUser(
-														user,
-														!isUserSelected(user),
-													)}>
+													onClick={handleToggleUser(user)}>
 													<Icon
 														icon={
 															isUserSelected(user) ? 'Close' : 'Add'
