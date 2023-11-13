@@ -1,4 +1,4 @@
-import { FC, useState, useRef } from 'react';
+import { FC, useState } from 'react';
 import Button from './bootstrap/Button';
 import Input from './bootstrap/forms/Input';
 import Card, { CardBody } from './bootstrap/Card';
@@ -6,8 +6,7 @@ import Dropdown, { DropdownItem, DropdownMenu, DropdownToggle } from './bootstra
 import Icon from './icon/Icon';
 import IUser from '../type/user-type';
 import User from './User';
-
-export type TMultiSelectItem = string | IUser;
+import TMultiSelectItem from '../type/multi-select-type';
 
 interface IMultiSelectProps {
 	values: TMultiSelectItem[];
@@ -21,10 +20,16 @@ const isUser = (item: TMultiSelectItem): item is IUser => {
 
 const MultiSelect: FC<IMultiSelectProps> = ({ values, options, onSelect }) => {
 	const [search, setSearch] = useState('');
-	const nonValues = options.filter((item) => {
+	const searchedNonValues = options.filter((item) => {
 		if (isUser(item))
-			return !(values as IUser[]).find((selectedItem) => selectedItem._id === item._id);
-		return !values.find((selectedItem) => selectedItem === item);
+			return (
+				!(values as IUser[]).find((selectedItem) => selectedItem._id === item._id) &&
+				`${item.lastName} ${item.firstName}`.toLowerCase().includes(search)
+			);
+		return (
+			!values.find((selectedItem) => selectedItem === item) &&
+			item.toLowerCase().includes(search)
+		);
 	});
 
 	const renderItem = (item: TMultiSelectItem) => {
@@ -42,18 +47,19 @@ const MultiSelect: FC<IMultiSelectProps> = ({ values, options, onSelect }) => {
 						placeholder={`${values.length} selected`}
 						value={search}
 						onInput={(event: InputEvent) =>
-							setSearch((event.currentTarget as HTMLInputElement).value)
+							setSearch((event.currentTarget as HTMLInputElement).value.toLowerCase())
 						}
 					/>
 				</DropdownToggle>
 				<DropdownMenu className='w-100'>
-					{nonValues.map((item) => (
+					{searchedNonValues.map((item) => (
 						<DropdownItem key={JSON.stringify(item)}>
+							{/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
 							<div
-								onClick={() => {
-									onSelect(item);
-								}}
-								className={`align-middle flex align-items-center`}>
+								role='menuitem'
+								tabIndex={0}
+								onClick={() => onSelect(item)}
+								className='align-middle flex align-items-center'>
 								{renderItem(item)}
 							</div>
 						</DropdownItem>

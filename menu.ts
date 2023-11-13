@@ -112,6 +112,12 @@ export const navigation = {
 		text: 'Target Group',
 		icon: 'Groups',
 	},
+	accessLevel: {
+		id: 'access-level',
+		path: 'access-levels',
+		text: 'Access Level',
+		icon: 'SettingsAccessibility',
+	},
 };
 
 export const authentication = {
