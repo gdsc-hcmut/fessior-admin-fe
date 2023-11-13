@@ -2,6 +2,7 @@ import { useState, useEffect, Fragment } from 'react';
 import FeatureFlagService from '../../common/services/feature-flag.service';
 import TargetGroupService from '../../common/services/target-group.service';
 import { idsToObjects } from '../../helpers/helpers';
+import { idsToObjects } from '../../helpers/helpers';
 import IFeatureFlag, { IPlatform } from '../../type/feature-flag-type';
 import ITargetGroup from '../../type/target-group-type';
 import Page from '../../layout/Page/Page';
@@ -34,7 +35,7 @@ const FeatureFlag = () => {
 	const [targetGroups, setTargetGroups] = useState<ITargetGroup[] | null>(null);
 	const [editFormShowing, setEditFormShowing] = useState(-1);
 	const [createFormShowing, setCreateFormShowing] = useState(false);
-	const [deleteModalShowing, setDeleteModalShowing] = useState(-1);
+	const [idDeleting, setIdDeleting] = useState<string | null>(null);
 	const [toastInfo, setToastInfo] = useState<{ isSuccess: boolean; message: string } | null>(
 		null,
 	);
@@ -273,7 +274,7 @@ const FeatureFlag = () => {
 															rounded={1}
 															color='danger'
 															onClick={() =>
-																setDeleteModalShowing(index)
+																setIdDeleting(featureFlag._id)
 															}>
 															<Icon icon='Delete' />
 														</Button>
@@ -289,11 +290,11 @@ const FeatureFlag = () => {
 													setIsShown={() => setEditFormShowing(-1)}
 												/>
 												<Modal
-													onClick={() => setDeleteModalShowing(-1)}
+													onClick={() => setIdDeleting(null)}
 													titleId={featureFlag._id}
 													size='sm'
 													isCentered
-													isOpen={deleteModalShowing === index}
+													isOpen={idDeleting === featureFlag._id}
 													setIsOpen={() => {}}>
 													<ModalHeader
 														onClick={(e) => e.stopPropagation()}>
@@ -312,7 +313,7 @@ const FeatureFlag = () => {
 															color='dark'
 															isOutline
 															onClick={() => {
-																setDeleteModalShowing(-1);
+																setIdDeleting(null);
 															}}>
 															Cancel
 														</Button>
@@ -348,9 +349,7 @@ const FeatureFlag = () => {
 						className={`text-[1.2rem] h-14 w-[30rem] flex items-center text-white p-4 ${
 							toastInfo.isSuccess ? 'bg-[#005b2e]' : 'bg-[#b3170a]'
 						}`}>
-						<Icon
-							className='me-3'
-							icon={toastInfo.isSuccess ? 'TaskAlt' : 'Block'}></Icon>
+						<Icon className='me-3' icon={toastInfo.isSuccess ? 'TaskAlt' : 'Block'} />
 						{toastInfo.message}
 					</div>
 				</ToastContainer>

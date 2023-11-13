@@ -1,4 +1,5 @@
 import { FC, useState } from 'react';
+import { FC, useState } from 'react';
 import Button from './bootstrap/Button';
 import Input from './bootstrap/forms/Input';
 import Card, { CardBody } from './bootstrap/Card';
@@ -47,6 +48,7 @@ const MultiSelect: FC<IMultiSelectProps> = ({ values, options, onSelect }) => {
 						placeholder={`${values.length} selected`}
 						value={search}
 						onInput={(event: InputEvent) =>
+							setSearch((event.currentTarget as HTMLInputElement).value.toLowerCase())
 							setSearch((event.currentTarget as HTMLInputElement).value.toLowerCase())
 						}
 					/>
