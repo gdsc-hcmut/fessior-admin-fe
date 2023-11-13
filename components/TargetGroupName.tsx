@@ -1,4 +1,5 @@
 import { FC, useState, useEffect } from 'react';
+import textShortener from '../helpers/textShortener';
 import Input from './bootstrap/forms/Input';
 import Icon from './icon/Icon';
 
@@ -9,6 +10,8 @@ interface ITargetGroupNameProps {
 	onCancel?: () => void;
 	isCreate?: boolean;
 }
+
+const MAX_TARGET_GROUP_NAME = 20;
 
 const TargetGroupName: FC<ITargetGroupNameProps> = ({
 	name,
@@ -61,7 +64,7 @@ const TargetGroupName: FC<ITargetGroupNameProps> = ({
 			onMouseLeave={() => setIsHovering(false)}
 			onKeyDown={() => {}}
 			onClick={() => setIsChangingName(true)}>
-			{currentName}
+			{textShortener(currentName, MAX_TARGET_GROUP_NAME)}
 			{isHovering && <Icon className='inline' icon='Edit' />}
 		</p>
 	);
