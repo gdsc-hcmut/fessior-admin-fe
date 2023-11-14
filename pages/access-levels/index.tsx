@@ -1,9 +1,11 @@
+// LIB
 import { useState, useEffect, Fragment } from 'react';
-import FeatureFlagService from '../../common/services/feature-flag.service';
-import TargetGroupService from '../../common/services/target-group.service';
-import { idsToObjects } from '../../helpers/helpers';
-import IFeatureFlag, { IPlatform } from '../../type/feature-flag-type';
-import ITargetGroup from '../../type/target-group-type';
+// SERVICE
+import AccessLevelService from '../../common/services/access-level.service';
+import PermissionService from '../../common/services/permission.service';
+// TYPE
+import IAccessLevel from '../../type/access-level-type';
+// COMPONENT
 import Page from '../../layout/Page/Page';
 import Content from '../../layout/Content/Content';
 import Card, {
@@ -15,7 +17,7 @@ import Card, {
 } from '../../components/bootstrap/Card';
 import Button from '../../components/bootstrap/Button';
 import Icon from '../../components/icon/Icon';
-import FeatureFlagForm from '../../components/FeatureFlagForm';
+import AccessLevelForm from '../../components/AccessLevelForm';
 import Tooltips from '../../components/bootstrap/Tooltips';
 import Modal, {
 	ModalTitle,
@@ -25,42 +27,30 @@ import Modal, {
 } from '../../components/bootstrap/Modal';
 import { ToastContainer } from '../../components/bootstrap/Toasts';
 
-// const PLATFORMS = ['web', 'android', 'ios'];
-const MAX_TARGET_GROUPS_SHOWN = 3;
-const MAX_DESCRIPTION_LENGTH = 40;
+const MAX_PERMISSIONS_SHOWN = 3;
 
-const FeatureFlag = () => {
-	const [featureFlags, setFeatureFlags] = useState<IFeatureFlag[] | null>(null);
-	const [targetGroups, setTargetGroups] = useState<ITargetGroup[] | null>(null);
+const AccessLevel = () => {
+	const [accessLevels, setAccessLevels] = useState<IAccessLevel[] | null>(null);
+	const [permissions, setPermissions] = useState<string[] | null>(null);
+	const [idDeleting, setIdDeleting] = useState<string | null>(null);
 	const [editFormShowing, setEditFormShowing] = useState(-1);
 	const [createFormShowing, setCreateFormShowing] = useState(false);
-	const [idDeleting, setIdDeleting] = useState<string | null>(null);
 	const [toastInfo, setToastInfo] = useState<{ isSuccess: boolean; message: string } | null>(
 		null,
 	);
 
 	useEffect(() => {
 		(async () => {
-			const [featureFlagsInitial, targetGroupsInitial] = await Promise.all([
-				FeatureFlagService.getAll(),
-				TargetGroupService.getAll(),
+			const [accessLevelsInitial, permissionsInitial] = await Promise.all([
+				AccessLevelService.getAll(),
+				PermissionService.getAll(),
 			]);
-			setFeatureFlags(
-				featureFlagsInitial.map((featureFlag: IFeatureFlag) => {
-					return {
-						...featureFlag,
-						targetGroups: idsToObjects<ITargetGroup>(
-							featureFlag.targetGroups,
-							targetGroupsInitial,
-						).map((targetGroup) => targetGroup.name),
-					};
-				}),
-			);
-			setTargetGroups(targetGroupsInitial);
+			setAccessLevels(accessLevelsInitial);
+			setPermissions(permissionsInitial);
 		})();
 	}, []);
 
-	if (!featureFlags || !targetGroups) {
+	if (!accessLevels || !permissions) {
 		return null;
 	}
 
@@ -74,23 +64,23 @@ const FeatureFlag = () => {
 		}, 3000);
 	};
 
-	const renderTargetGroups = (featureFlag: IFeatureFlag) => {
-		const targetGroupsAllowed =
-			featureFlag.targetGroups.length > MAX_TARGET_GROUPS_SHOWN
-				? featureFlag.targetGroups.slice(0, MAX_TARGET_GROUPS_SHOWN)
-				: featureFlag.targetGroups;
-		const remaining = featureFlag.targetGroups.slice(MAX_TARGET_GROUPS_SHOWN);
+	const renderPermissions = (accessLevel: IAccessLevel) => {
+		const permissionsAllowed =
+			accessLevel.permissions.length > MAX_PERMISSIONS_SHOWN
+				? accessLevel.permissions.slice(0, MAX_PERMISSIONS_SHOWN)
+				: accessLevel.permissions;
+		const remaining = accessLevel.permissions.slice(MAX_PERMISSIONS_SHOWN);
 
 		return (
 			<>
-				{targetGroupsAllowed.map((targetGroup) => (
+				{permissionsAllowed.map((permission) => (
 					<Button
-						key={targetGroup}
+						key={permission}
 						className='text-[#323232] mx-px'
 						color='dark'
 						isOutline
 						isDisable>
-						{targetGroup}
+						{permission}
 					</Button>
 				))}
 				{remaining.length > 0 && (
@@ -104,33 +94,21 @@ const FeatureFlag = () => {
 		);
 	};
 
-	const renderDescription = (featureFlag: IFeatureFlag) => {
-		return featureFlag.description.length > MAX_DESCRIPTION_LENGTH ? (
-			<Tooltips className='mb-3 text-[13px]' title={featureFlag.description}>
-				{`${featureFlag.description.slice(0, MAX_DESCRIPTION_LENGTH)}...`}
-			</Tooltips>
-		) : (
-			featureFlag.description
-		);
-	};
-
 	const handleUpdate = (
-		featureFlagId: string,
-		description: string,
-		targetGroupsNames: string[],
-		isEnabled: boolean,
+		accessLevelId: string,
+		name: string,
+		permissionValues: string[],
+		users: string[],
 	) => {
 		return async () => {
-			const newFeatureFlag = {
-				description,
-				targetGroups: targetGroupsNames.map(
-					(name) => targetGroups.find((targetGroup) => targetGroup.name === name)!._id,
-				),
-				isEnabled,
-			} as IFeatureFlag;
+			const newAccessLevel = {
+				name,
+				permissions: permissionValues,
+				users,
+			} as IAccessLevel;
 
 			try {
-				await FeatureFlagService.update(featureFlagId, newFeatureFlag);
+				await AccessLevelService.update(accessLevelId, newAccessLevel);
 			} catch (e: any) {
 				console.log(e);
 				setToast(e.response.data.message, false);
@@ -139,51 +117,33 @@ const FeatureFlag = () => {
 
 			setToast('Update successfully');
 
-			setFeatureFlags(
-				featureFlags.map((featureFlag) =>
-					featureFlag._id === featureFlagId
+			setAccessLevels(
+				accessLevels.map((accessLevel) =>
+					accessLevel._id === accessLevelId
 						? {
-								...featureFlag,
-								description,
-								targetGroups: targetGroupsNames,
-								isEnabled,
+								...accessLevel,
+								name,
+								permissions: permissionValues,
+								users,
 						  }
-						: featureFlag,
+						: accessLevel,
 				),
 			);
 		};
 	};
 
-	const handleCreate = (
-		key: string,
-		description: string,
-		targetGroupsNames: string[],
-		isEnabled: boolean,
-	) => {
+	const handleCreate = (name: string, permissionValues: string[], users: string[]) => {
 		return async () => {
-			const newFeatureFlag = {
-				key,
-				description,
-				targetGroups: targetGroupsNames.map(
-					(name) => targetGroups.find((targetGroup) => targetGroup.name === name)!._id,
-				),
-				platforms: [] as IPlatform[],
-				isEnabled,
-			} as IFeatureFlag;
+			const newAccessLevel = {
+				name,
+				permissions: permissionValues,
+				users,
+			} as IAccessLevel;
 
 			try {
-				const response = await FeatureFlagService.create(newFeatureFlag);
+				const response = await AccessLevelService.create(newAccessLevel);
 				setToast('Create successfully');
-				setFeatureFlags(
-					featureFlags.concat([
-						{
-							...response,
-							targetGroups: idsToObjects(response.targetGroups, targetGroups).map(
-								(targetGroup) => targetGroup.name,
-							),
-						},
-					]),
-				);
+				setAccessLevels(accessLevels.concat([response]));
 			} catch (e: any) {
 				console.log(e);
 				setToast(e.response.data.message, false);
@@ -194,9 +154,9 @@ const FeatureFlag = () => {
 	const handleDelete = (id: string) => {
 		return async () => {
 			try {
-				await FeatureFlagService.deleteById(id);
+				await AccessLevelService.deleteById(id);
 				setToast('Delete successfully');
-				setFeatureFlags(featureFlags.filter((featureFlag) => featureFlag._id !== id));
+				setAccessLevels(accessLevels.filter((accessLevel) => accessLevel._id !== id));
 			} catch (e: any) {
 				console.log(e);
 				setToast(e.response.data.message, false);
@@ -211,7 +171,7 @@ const FeatureFlag = () => {
 					<Card>
 						<CardHeader>
 							<CardLabel>
-								<CardTitle className='h3'>Feature Flag</CardTitle>
+								<CardTitle className='h3'>Access Level</CardTitle>
 							</CardLabel>
 							<CardActions>
 								<Button
@@ -228,35 +188,19 @@ const FeatureFlag = () => {
 								<thead>
 									<tr>
 										<th>No.</th>
-										<th>Key</th>
-										<th>Description</th>
-										<th>Target Groups</th>
-										<th>isEnabled</th>
+										<th>Name</th>
+										<th>Permissions</th>
 										<th>Actions</th>
 									</tr>
 								</thead>
 								<tbody>
-									{featureFlags.map(
-										(featureFlag: IFeatureFlag, index: number) => (
-											<Fragment key={featureFlag._id}>
+									{accessLevels.map(
+										(accessLevel: IAccessLevel, index: number) => (
+											<Fragment key={accessLevel._id}>
 												<tr>
 													<td>{index + 1}</td>
-													<td>{featureFlag.key}</td>
-													<td>{renderDescription(featureFlag)}</td>
-													<td>{renderTargetGroups(featureFlag)}</td>
-													<td
-														className={
-															featureFlag.isEnabled
-																? 'font-medium text-[#005b2e]'
-																: 'font-medium text-[#b3170a]'
-														}
-														color={
-															featureFlag.isEnabled
-																? 'success'
-																: 'danger'
-														}>
-														{featureFlag.isEnabled ? 'TRUE' : 'FALSE'}
-													</td>
+													<td>{accessLevel.name}</td>
+													<td>{renderPermissions(accessLevel)}</td>
 													<td>
 														<Button
 															className='mx-2'
@@ -273,31 +217,30 @@ const FeatureFlag = () => {
 															rounded={1}
 															color='danger'
 															onClick={() =>
-																setIdDeleting(featureFlag._id)
+																setIdDeleting(accessLevel._id)
 															}>
 															<Icon icon='Delete' />
 														</Button>
 													</td>
 												</tr>
-												<FeatureFlagForm
+												<AccessLevelForm
 													mode='edit'
-													targetGroups={targetGroups}
-													featureFlag={featureFlag}
-													featureFlagId={featureFlag._id}
+													permissionOptions={permissions}
+													accessLevel={accessLevel}
 													onEdit={handleUpdate}
 													isShown={editFormShowing === index}
 													setIsShown={() => setEditFormShowing(-1)}
 												/>
 												<Modal
 													onClick={() => setIdDeleting(null)}
-													titleId={featureFlag._id}
+													titleId={accessLevel._id}
 													size='sm'
 													isCentered
-													isOpen={idDeleting === featureFlag._id}
+													isOpen={idDeleting === accessLevel._id}
 													setIsOpen={() => {}}>
 													<ModalHeader
 														onClick={(e) => e.stopPropagation()}>
-														<ModalTitle id={featureFlag._id}>
+														<ModalTitle id={accessLevel._id}>
 															Are you sure?
 														</ModalTitle>
 													</ModalHeader>
@@ -320,7 +263,7 @@ const FeatureFlag = () => {
 															color='danger'
 															onClick={(e: Event) => {
 																e.stopPropagation();
-																handleDelete(featureFlag._id)();
+																handleDelete(accessLevel._id)();
 															}}>
 															Delete
 														</Button>
@@ -333,9 +276,9 @@ const FeatureFlag = () => {
 							</table>
 						</CardBody>
 					</Card>
-					<FeatureFlagForm
+					<AccessLevelForm
 						mode='create'
-						targetGroups={targetGroups}
+						permissionOptions={permissions}
 						onCreate={handleCreate}
 						isShown={createFormShowing}
 						setIsShown={() => setCreateFormShowing(false)}
@@ -357,4 +300,4 @@ const FeatureFlag = () => {
 	);
 };
 
-export default FeatureFlag;
+export default AccessLevel;
