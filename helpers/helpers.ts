@@ -115,5 +115,5 @@ export const pathToRoute = (path: string): string => {
 	return path;
 };
 
-export const idsToObjects = <T extends { _id: string; name: string }>(ids: string[], items: T[]) =>
-	ids.map((id) => items.find((item) => item._id === id));
+export const idsToObjects = <T extends { _id: string }>(ids: string[], items: T[]) =>
+	ids.map((id) => items.find((item) => item._id === id)) as T[];

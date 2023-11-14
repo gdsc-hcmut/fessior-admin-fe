@@ -112,6 +112,12 @@ export const navigation = {
 		text: 'Target Group',
 		icon: 'Groups',
 	},
+	organization: {
+		id: 'organization',
+		path: 'organizations',
+		text: 'Organization',
+		icon: 'CorporateFare',
+	},
 };
 
 export const authentication = {
