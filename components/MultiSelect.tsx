@@ -4,20 +4,40 @@ import Input from './bootstrap/forms/Input';
 import Card, { CardBody } from './bootstrap/Card';
 import Dropdown, { DropdownItem, DropdownMenu, DropdownToggle } from './bootstrap/Dropdown';
 import Icon from './icon/Icon';
+import IUser from '../type/user-type';
+import User from './User';
+import TMultiSelectItem from '../type/multi-select-type';
 
 interface IMultiSelectProps {
-	values: string[];
-	options: string[];
-	onSelect: (item: string) => void;
+	values: TMultiSelectItem[];
+	options: TMultiSelectItem[];
+	onSelect: (item: TMultiSelectItem) => void;
 }
+
+const isUser = (item: TMultiSelectItem): item is IUser => {
+	return (item as IUser).firstName !== undefined;
+};
 
 const MultiSelect: FC<IMultiSelectProps> = ({ values, options, onSelect }) => {
 	const [search, setSearch] = useState('');
-	const searchedNonValues = options.filter(
-		(item) =>
+	const searchedNonValues = options.filter((item) => {
+		if (isUser(item))
+			return (
+				!(values as IUser[]).find((selectedItem) => selectedItem._id === item._id) &&
+				`${item.lastName} ${item.firstName}`.toLowerCase().includes(search)
+			);
+		return (
 			!values.find((selectedItem) => selectedItem === item) &&
-			item.toLowerCase().includes(search),
-	);
+			item.toLowerCase().includes(search)
+		);
+	});
+
+	const renderItem = (item: TMultiSelectItem) => {
+		if (isUser(item))
+			return <User picture={item.picture} fullName={`${item.lastName} ${item.firstName}`} />;
+
+		return item;
+	};
 
 	return (
 		<>
@@ -33,16 +53,14 @@ const MultiSelect: FC<IMultiSelectProps> = ({ values, options, onSelect }) => {
 				</DropdownToggle>
 				<DropdownMenu className='w-100'>
 					{searchedNonValues.map((item) => (
-						<DropdownItem key={item}>
+						<DropdownItem key={JSON.stringify(item)}>
 							{/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
 							<div
 								role='menuitem'
 								tabIndex={0}
-								onClick={() => {
-									onSelect(item);
-								}}
+								onClick={() => onSelect(item)}
 								className='align-middle flex align-items-center'>
-								{item}
+								{renderItem(item)}
 							</div>
 						</DropdownItem>
 					))}
@@ -55,11 +73,11 @@ const MultiSelect: FC<IMultiSelectProps> = ({ values, options, onSelect }) => {
 						{values.map((item) => (
 							<Button
 								onClick={() => {}}
-								key={item}
+								key={JSON.stringify(item)}
 								className='mx-1 my-2 inline-flex items-center'
 								color='primary'
 								isOutline>
-								<span>{item}</span>
+								<span>{renderItem(item)}</span>
 								<Icon
 									onClick={() => {
 										onSelect(item);

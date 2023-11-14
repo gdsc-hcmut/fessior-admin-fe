@@ -17,10 +17,15 @@ const logout = async () => {
 	localStorage.removeItem('token');
 };
 
+const getAll = async () => {
+	return (await api.get('v1/admin/api/users')).data.payload.users;
+};
+
 const UserApi = {
 	getProfile,
 	login,
 	logout,
+	getAll,
 };
 
 export default UserApi;
