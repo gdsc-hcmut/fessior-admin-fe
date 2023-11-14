@@ -123,7 +123,7 @@ const AccessLevel = () => {
 						? {
 								...accessLevel,
 								name,
-								permissionValues,
+								permissions: permissionValues,
 								users,
 						  }
 						: accessLevel,
