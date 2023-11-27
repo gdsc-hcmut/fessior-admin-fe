@@ -43,7 +43,6 @@ const Wrapper: FC<IWrapper> = ({ children }) => {
 			<WrapperContainer>
 				<HeaderRoutes />
 				<Content>{children}</Content>
-				<FooterRoutes />
 			</WrapperContainer>
 			<WrapperOverlay />
 		</>

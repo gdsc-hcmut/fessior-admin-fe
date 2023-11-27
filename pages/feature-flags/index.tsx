@@ -2,6 +2,7 @@ import { useState, useEffect, Fragment } from 'react';
 import FeatureFlagService from '../../common/services/feature-flag.service';
 import TargetGroupService from '../../common/services/target-group.service';
 import { idsToObjects } from '../../helpers/helpers';
+import textShortener from '../../helpers/textShortener';
 import IFeatureFlag, { IPlatform } from '../../type/feature-flag-type';
 import ITargetGroup from '../../type/target-group-type';
 import Page from '../../layout/Page/Page';
@@ -28,6 +29,7 @@ import { ToastContainer } from '../../components/bootstrap/Toasts';
 // const PLATFORMS = ['web', 'android', 'ios'];
 const MAX_TARGET_GROUPS_SHOWN = 3;
 const MAX_DESCRIPTION_LENGTH = 40;
+const MAX_TARGET_GROUP_NAME_LENGTH = 20;
 
 const FeatureFlag = () => {
 	const [featureFlags, setFeatureFlags] = useState<IFeatureFlag[] | null>(null);
@@ -86,11 +88,10 @@ const FeatureFlag = () => {
 				{targetGroupsAllowed.map((targetGroup) => (
 					<Button
 						key={targetGroup}
-						className='text-[#323232] mx-px'
+						className='text-[#323232] mx-px hover:cursor-default'
 						color='dark'
-						isOutline
-						isDisable>
-						{targetGroup}
+						isOutline>
+						{textShortener(targetGroup, MAX_TARGET_GROUP_NAME_LENGTH)}
 					</Button>
 				))}
 				{remaining.length > 0 && (
@@ -105,13 +106,7 @@ const FeatureFlag = () => {
 	};
 
 	const renderDescription = (featureFlag: IFeatureFlag) => {
-		return featureFlag.description.length > MAX_DESCRIPTION_LENGTH ? (
-			<Tooltips className='mb-3 text-[13px]' title={featureFlag.description}>
-				{`${featureFlag.description.slice(0, MAX_DESCRIPTION_LENGTH)}...`}
-			</Tooltips>
-		) : (
-			featureFlag.description
-		);
+		return textShortener(featureFlag.description, MAX_DESCRIPTION_LENGTH);
 	};
 
 	const handleUpdate = (
